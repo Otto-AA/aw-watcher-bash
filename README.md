@@ -13,13 +13,10 @@ You can find it [here](https://github.com/Otto-AA/aw-watcher-terminal/).
 curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
 ```
 
-### Copy aw-awtcher-bash.sh to a /bin dir
+### Copy the aw-watcher-bash-* scripts to a /bin dir
 
 ```bash
-# It just needs to be callable via aw-watcher-bash
-# Feel free to use other methods if you wish
-cp ./aw-watcher-bash.sh ~/.local/bin/aw-watcher-bash
-chmod +x ~/.local/bin/aw-watcher-bash
+make build
 ```
 
 ### Add following code to the bottom of your ~/.bashrc file
@@ -28,11 +25,24 @@ chmod +x ~/.local/bin/aw-watcher-bash
 # Send data to local ActivityWatch server
 if [[ -f ~/.bash-preexec.sh ]]; then
   source ~/.bash-preexec.sh
+
+  (aw-watcher-bash-preopen "$PPID" &)
+
   preexec() {
-    # Call aw-watcher-bash in a background process to
+    # Call aw-watcher-bash in a background process to 
     # prevent blocking and in a subshell to prevent logging
-    (aw-watcher-bash "$1" &)
+    (aw-watcher-bash-preexec "$PPID" "$1" "bash" &)
   }
+  
+  precmd() {
+    (aw-watcher-bash-precmd  "$PPID" "$?" &)
+  }
+  
+  aw-watcher-terminal-preclose() {
+    (aw-watcher-bash-preclose "$PPID" &)
+  }
+
+  trap aw-watcher-terminal-preclose INT TERM EXIT
 fi
 ```
 

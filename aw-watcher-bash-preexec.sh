@@ -39,21 +39,15 @@ escape_quotes() {
 }
 
 # Set variables
-command="$(escape_quotes "$1")"
-shell="$(escape_quotes "$2")"
-shell_version="$(escape_quotes "$3")"
+pid="$(escape_quotes "$1")"
+command="$(escape_quotes "$2")"
+shell="$(escape_quotes "$3")"
 path="$(escape_quotes "$PWD")"
-pipe_path="${XDG_DATA_HOME:-$HOME/.local/share}/activitywatch/aw-watcher-terminal/aw-watcher-terminal-fifo"
-
-message="--command \"$command\" --path \"$path\" --shell \"$shell\" --shell-version \"$shell_version\""
-
-# Following command fails due to https://stackoverflow.com/a/11968963/6548154
-# Using bash -c "..." likely breakes the escaping
-#timeout -k 5.0s 5.0s echo "$message" > "$pipe_path"
-
+fifo_path="${XDG_DATA_HOME:-$HOME/.local/share}/activitywatch/aw-watcher-terminal/aw-watcher-terminal-fifo"
+message="--event preexec --pid \"$pid\" --command \"$command\" --path \"$path\" --shell \"$shell\""
 
 # send message to pipe
-echo "$message" > "$pipe_path" &
+echo "$message" > "$fifo_path" &
 
 # The background process would keep open if the pipe was not opened for reading at the time of execution
 # Therefore delete background process after delay
