@@ -29,22 +29,26 @@ _Note: In case you use zsh, drop the bash-preexec.sh part, as preexec is in-buil
 if [[ -f ~/.bash-preexec.sh ]]; then
   source ~/.bash-preexec.sh
 
-  base_args=("$PPID" "$(date --iso-8601=ns)")
+  send_aw_watcher_bash_event() {
+    local base_args=("$PPID" "$(date --iso-8601=ns)")
+    local args=("${base_args[@]}" "$@")
+    (aw-watcher-bash "${args[@]}" &)
+  }
 
-  (aw-watcher-bash "${base_args[@]}" 'preopen')
+  send_aw_watcher_bash_event 'preopen'
 
   preexec() {
     # Call aw-watcher-bash in a background process to 
     # prevent blocking and in a subshell to prevent logging
-    (aw-watcher-bash "${base_args[@]}" 'preexec' "$1" 'bash' &)
+    send_aw_watcher_bash_event 'preexec' "$1" 'bash'
   }
   
   precmd() {
-    (aw-watcher-bash "${base_args[@]}" 'precmd' "$?" &)
+    send_aw_watcher_bash_event 'precmd' "$?"
   }
   
   aw-watcher-terminal-preclose() {
-    (aw-watcher-bash "${base_args[@]}" 'preclose' &)
+    send_aw_watcher_bash_event 'preclose'
   }
 
   trap aw-watcher-terminal-preclose INT TERM EXIT
