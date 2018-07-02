@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-# usage
-# aw-watcher-bash 'command with args' 'my_shell' 'my_shell_version'
-# aw-watcher-bash 'echo "Hello World"' 'bash' '4.4.19(1)-release'
+# usage of aw-watcher-bash.sh
+#
+# aw-watcher-bash "$BASHPID" "$(date --iso-8601=ns)" 'preexec' 'ls' 'bash'
+# for an accurate version of the parameters see add_arg
+
 
 # escape_quotes
 # Prepends a backslash to every quote (") and every backslash followed by a quote (\") or backslash (\\)
@@ -38,22 +40,61 @@ escape_quotes() {
     echo "$result"
 }
 
-# Set variables
-command="$(escape_quotes "$1")"
-shell="$(escape_quotes "$2")"
-shell_version="$(escape_quotes "$3")"
-path="$(escape_quotes "$PWD")"
-pipe_path="${XDG_DATA_HOME:-$HOME/.local/share}/activitywatch/aw-watcher-terminal/aw-watcher-terminal-fifo"
+event="$3"
+passed_args=("$@")
+pipe_message_args=()
 
-message="--command \"$command\" --path \"$path\" --shell \"$shell\" --shell-version \"$shell_version\""
+logfile="${XDG_CACHE_HOME:-$HOME/.cache}/activitywatch/log/aw-watcher-terminal/aw-watcher-bash.log"
+fifo_path="${XDG_DATA_HOME:-$HOME/.local/share}/activitywatch/aw-watcher-terminal/aw-watcher-terminal-fifo"
 
-# Following command fails due to https://stackoverflow.com/a/11968963/6548154
-# Using bash -c "..." likely breakes the escaping
-#timeout -k 5.0s 5.0s echo "$message" > "$pipe_path"
+# add_arg
+# Add an argument (e.g. --pid 1234) to the args array and escape the quotes
+# $1: key
+# $2: val (or --first-val)
+# $3: --shift or --no-shift  (use this to remove the latest value)
+add_arg() {
+    key="$1"
+    val="$2"
+    if [[ "$val" = "--first-val" ]] || [[ "$val" = "" ]]; then
+        val="${passed_args[0]}"
+    fi
+    pipe_message_args+=("$key \"$(escape_quotes "$val")\"")
+    if [[ "$3" = "--shift" ]] || [[ "$3" = "" ]]; then
+        passed_args=("${passed_args[@]:1}")
+    fi
+}
+
+# Reserved arguments
+add_arg '--pid'
+add_arg '--time'
+add_arg '--event'
+add_arg '--path' "$PWD" --no-shift
 
 
-# send message to pipe
-echo "$message" > "$pipe_path" &
+# Add arguments depending on event type
+case "$event" in
+    'preopen')
+        ;;
+    'preexec')
+        add_arg '--command'
+        add_arg '--shell'
+        ;;
+    'precmd')
+        add_arg '--exit-code'
+        ;;
+    'preclose')
+        ;;
+    *)
+        echo "Unknown event: $event" >> "$logfile"
+
+esac
+
+
+message="${pipe_message_args[*]}"
+
+# send message to pipe and logfile
+echo "$message" > "$fifo_path" &
+echo "$message" >> "$logfile"
 
 # The background process would keep open if the pipe was not opened for reading at the time of execution
 # Therefore delete background process after delay

@@ -2,10 +2,9 @@
 
 ## Installation
 
-### Install aw-watcher-terminal
+### Install [aw-watcher-terminal](https://github.com/Otto-AA/aw-watcher-terminal/)
 
-This is the general watcher all shell-specific watchers require.
-You can find it [here](https://github.com/Otto-AA/aw-watcher-terminal/).
+This is the general watcher all shell-specific watchers send the data to.
 
 ### Install [bash-preexecute](https://github.com/rcaloras/bash-preexec#install)
 
@@ -13,26 +12,46 @@ You can find it [here](https://github.com/Otto-AA/aw-watcher-terminal/).
 curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
 ```
 
-### Copy aw-awtcher-bash.sh to a /bin dir
+### Install aw-watcher-bash
 
 ```bash
-# It just needs to be callable via aw-watcher-bash
-# Feel free to use other methods if you wish
-cp ./aw-watcher-bash.sh ~/.local/bin/aw-watcher-bash
-chmod +x ~/.local/bin/aw-watcher-bash
+git clone https://github.com/otto-aa/aw-watcher-bash
+cd aw-watcher-bash
+make build
 ```
 
 ### Add following code to the bottom of your ~/.bashrc file
+
+_Note: In case you use zsh, drop the bash-preexec.sh part, as preexec is in-build in zsh_
 
 ```bash
 # Send data to local ActivityWatch server
 if [[ -f ~/.bash-preexec.sh ]]; then
   source ~/.bash-preexec.sh
-  preexec() {
-    # Call aw-watcher-bash in a background process to
-    # prevent blocking and in a subshell to prevent logging
-    (aw-watcher-bash "$1" &)
+
+  send_aw_watcher_bash_event() {
+    local base_args=("$PPID" "$(date --iso-8601=ns)")
+    local args=("${base_args[@]}" "$@")
+    (aw-watcher-bash "${args[@]}" &)
   }
+
+  send_aw_watcher_bash_event 'preopen'
+
+  preexec() {
+    # Call aw-watcher-bash in a background process to 
+    # prevent blocking and in a subshell to prevent logging
+    send_aw_watcher_bash_event 'preexec' "$1" 'bash'
+  }
+  
+  precmd() {
+    send_aw_watcher_bash_event 'precmd' "$?"
+  }
+  
+  aw-watcher-terminal-preclose() {
+    send_aw_watcher_bash_event 'preclose'
+  }
+
+  trap aw-watcher-terminal-preclose INT TERM EXIT
 fi
 ```
 
