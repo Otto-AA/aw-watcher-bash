@@ -40,7 +40,6 @@ escape_quotes() {
     echo "$result"
 }
 
-event="$3"
 passed_args=("$@")
 pipe_message_args=()
 
@@ -66,7 +65,10 @@ add_arg() {
 
 # Reserved arguments
 add_arg '--pid'
+add_arg '--shell'
 add_arg '--time'
+
+event="${passed_args[0]}"
 add_arg '--event'
 add_arg '--path' "$PWD" --no-shift
 
@@ -77,7 +79,6 @@ case "$event" in
         ;;
     'preexec')
         add_arg '--command'
-        add_arg '--shell'
         ;;
     'precmd')
         add_arg '--exit-code'
@@ -90,7 +91,7 @@ case "$event" in
 esac
 
 
-message="${pipe_message_args[*]}"
+message="${pipe_message_args[*]} --send-heartbeat"
 
 # send message to pipe and logfile
 echo "$message" > "$fifo_path" &

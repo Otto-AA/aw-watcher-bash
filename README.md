@@ -30,7 +30,7 @@ if [[ -f ~/.bash-preexec.sh ]]; then
   source ~/.bash-preexec.sh
 
   send_aw_watcher_bash_event() {
-    local base_args=("$PPID" "$(date --iso-8601=ns)")
+    local base_args=("$PPID" 'bash' "$(date --iso-8601=ns)")
     local args=("${base_args[@]}" "$@")
     (aw-watcher-bash "${args[@]}" &)
   }
@@ -40,7 +40,7 @@ if [[ -f ~/.bash-preexec.sh ]]; then
   preexec() {
     # Call aw-watcher-bash in a background process to 
     # prevent blocking and in a subshell to prevent logging
-    send_aw_watcher_bash_event 'preexec' "$1" 'bash'
+    send_aw_watcher_bash_event 'preexec' "$1"
   }
   
   precmd() {
