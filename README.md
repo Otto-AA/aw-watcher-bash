@@ -51,7 +51,7 @@ if [[ -f ~/.bash-preexec.sh ]]; then
     send_aw_watcher_bash_event 'preclose'
   }
 
-  trap aw-watcher-terminal-preclose INT TERM EXIT
+  trap aw-watcher-terminal-preclose TERM EXIT
 fi
 ```
 
