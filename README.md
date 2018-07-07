@@ -31,12 +31,12 @@ make install
 Make sure that aw-watcher-terminal is running in the background.
 This is needed because aw-watcher-bash is just a hook which sends terminal info to aw-watcher-terminal, the data itself is then packaged and sent by aw-watcher-terminal so without that running all data will be lost.
 
-### Add following code to the bottom of your ~/.bashrc file
+### Add following code to the bottom of your ~/.bashrc or ~/.zshrc file
 
-Replace the PATH variable to the path to the aw-watcher-bash-preexec.sh script on your computer
+Replace the AW_WATCHER_BASH_PREEXEC variable to the path to the aw-watcher-bash-preexec.sh script on your computer
 
 ```bash
-source $PATH_TO_AW_WATCHER_BASH_PREEXEC.SH
+source $AW_WATCHER_BASH_PREEXEC
 ```
 
 ### Make sure aw-watcher-terminal is started

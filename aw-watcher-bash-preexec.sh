@@ -1,7 +1,7 @@
 export PATH=$PATH:~/.local/bin/
 
-CURRENT_SHELL=$(ps -p "$$" | tail -n 1 | awk '{ print $4 }')
-if [[ $CURRENT_SHELL == "zsh" ]]; then
+current_shell=$(ps -p "$$" | tail -n 1 | awk '{ print $4 }')
+if [[ $current_shell == "zsh" ]]; then
   # zsh supports preexec natively, do nothing
   : # : is a nop
 elif [[ -f ~/.bash-preexec.sh ]]; then
@@ -11,7 +11,7 @@ else
 fi
 
 send_aw_watcher_bash_event() {
-  local base_args=("$PPID" 'bash' "$(date --iso-8601=ns)")
+  local base_args=("$PPID" 'current_shell' "$(date --iso-8601=ns)")
   local args=("${base_args[@]}" "$@")
   (aw-watcher-bash "${args[@]}" &)
 }
@@ -32,4 +32,4 @@ aw-watcher-terminal-preclose() {
   send_aw_watcher_bash_event 'preclose'
 }
 
-trap aw-watcher-terminal-preclose INT TERM EXIT
+trap aw-watcher-terminal-preclose TERM EXIT
