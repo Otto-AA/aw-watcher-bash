@@ -1,4 +1,4 @@
-build:
-	# Copy watcher and make it executable
+.PHONY: install
+install:
+	mkdir -p ~/.local/bin/
 	cp ./aw-watcher-bash.sh ~/.local/bin/aw-watcher-bash
-	chmod +x ~/.local/bin/aw-watcher-bash
