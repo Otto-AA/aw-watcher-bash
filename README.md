@@ -18,12 +18,10 @@ This is the general watcher all shell-specific watchers send the data to.
 curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
 ```
 
-### Install aw-watcher-bash
+### Download aw-watcher-bash
 
 ```bash
 git clone https://github.com/otto-aa/aw-watcher-bash
-cd aw-watcher-bash
-make install
 ```
 
 ### Run aw-watcher-terminal in the background
