@@ -11,7 +11,7 @@ else
 fi
 
 send_aw_watcher_bash_event() {
-  local base_args=("$PPID" 'current_shell' "$(date --iso-8601=ns)")
+  local base_args=("$PPID" "$current_shell" "$(date --iso-8601=ns)")
   local args=("${base_args[@]}" "$@")
   (aw-watcher-bash "${args[@]}" &)
 }
