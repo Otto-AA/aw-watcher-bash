@@ -1,6 +1,7 @@
 # aw-watcher-bash [WIP]
 
 Supports:
+
 - bash
 - zsh
 
@@ -31,10 +32,10 @@ This is needed because aw-watcher-bash is just a hook which sends terminal info 
 
 ### Add following code to the bottom of your ~/.bashrc or ~/.zshrc file
 
-Replace the AW_WATCHER_BASH_PREEXEC variable to the path to the aw-watcher-bash-preexec.sh script on your computer
+Replace the AW_WATCHER_BASH variable to the path to the aw-watcher-bash.sh script on your computer
 
 ```bash
-source $AW_WATCHER_BASH_PREEXEC
+source $AW_WATCHER_BASH
 ```
 
 ### Make sure aw-watcher-terminal is started
