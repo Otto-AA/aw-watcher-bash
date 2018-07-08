@@ -1,7 +1,7 @@
 export PATH=$PATH:~/.local/bin/
 
-_aw_current_shell=$(ps -p "$$" | tail -n 1 | awk '{ print $4 }')
-if [[ $_aw_current_shell == "zsh" ]]; then
+_aw_current_shell="$(ps -p "$$" | tail -n 1 | awk '{ print $4 }')"
+if [[ "$_aw_current_shell" == "zsh" ]]; then
   # zsh supports preexec natively, do nothing
   : # : is a nop
 elif [[ -f ~/.bash-preexec.sh ]]; then
@@ -15,9 +15,9 @@ function _aw_send_event() {
     # aw-watcher-bash "$BASHPID" "$(date --iso-8601=ns)" 'preexec' 'ls' 'bash'
     # for an accurate version of the parameters see add_arg
     pipe_message_args=()
-    event=$1
-    pid=$2
-    extra_arg=$3
+    event="$1"
+    pid="$2"
+    extra_arg="$3"
 
     logfile="${XDG_CACHE_HOME:-$HOME/.cache}/activitywatch/log/aw-watcher-terminal/aw-watcher-bash.log"
     fifo_path="${XDG_DATA_HOME:-$HOME/.local/share}/activitywatch/aw-watcher-terminal/aw-watcher-terminal-fifo"
@@ -32,10 +32,10 @@ function _aw_send_event() {
     }
 
     function add_arg() {
-    # Add an argument (e.g. --pid 1234) to the pipe_message_args array
-    # $1: key
-    # $2: val (or --first-val)
-    pipe_message_args+=("$1 \"$(escape_quotes "$2")\"")
+        # Add an argument (e.g. --pid 1234) to the pipe_message_args array
+        # $1: key
+        # $2: val (or --first-val)
+        pipe_message_args+=("$1 \"$(escape_quotes "$2")\"")
     }
 
     add_arg '--event' "$event"
